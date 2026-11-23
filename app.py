@@ -1,11 +1,13 @@
 from pathlib import Path
+import os
 import sqlite3
 
 from flask import Flask, redirect, render_template, request, url_for
 
 
 app = Flask(__name__)
-DATABASE = Path(__file__).with_name("notes.db")
+DATA_DIR = Path(os.environ.get("RAILWAY_VOLUME_MOUNT_PATH", Path(__file__).parent))
+DATABASE = Path(os.environ.get("DATABASE_PATH", str(DATA_DIR / "notes.db")))
 
 
 def connect_db():
@@ -15,6 +17,7 @@ def connect_db():
 
 
 def init_db():
+    DATABASE.parent.mkdir(parents=True, exist_ok=True)
     connection = connect_db()
     try:
         with connection:
@@ -56,4 +59,7 @@ def delete_note(note_id):
 init_db()
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000)
+    app.run(
+        host="0.0.0.0" if "PORT" in os.environ else "127.0.0.1",
+        port=int(os.environ.get("PORT", "5000")),
+    )

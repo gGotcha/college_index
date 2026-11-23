@@ -27,3 +27,15 @@ python3 -m venv .venv
 ```
 
 Notes persist when you restart the app. This is a minimal local app without user accounts.
+
+## Deploy with GitHub → Railway
+
+Connect the Railway service to `gGotcha/college_index`, branch `main`, with the repository root as its root directory. Enable automatic deployments from GitHub.
+
+The included `railway.toml` installs the Python requirements using Railpack and starts Gunicorn on `0.0.0.0:$PORT`. Railway supplies `PORT`. The `/` page is also the deployment health check. Local Windows startup still uses `python app.py`.
+
+The existing service domain is https://app-426bdcf934426d19.up.railway.app/.
+
+For notes to survive redeploys, attach a Railway volume to this service (for example at `/data`). The app automatically stores `notes.db` in `RAILWAY_VOLUME_MOUNT_PATH` when present. You can also override the full file path using `DATABASE_PATH`. Without a volume, the app works but notes can be lost on redeployment.
+
+The deployed app is a shared notes demo: anyone visiting it can see, add, and delete notes.
